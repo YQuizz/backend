@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"log"
 	"yquiz_back/internal/controllers"
 	"yquiz_back/internal/database"
 
@@ -8,7 +9,10 @@ import (
 )
 
 func Init_server() {
-	database.InitDatabase()
+	_, err := database.GetDB()
+	if err != nil {
+		log.Fatal("Failed to connect to database", err)
+	}
 
 	router := gin.Default()
 	initRoutes(router)

@@ -1,8 +1,10 @@
 package database
 
 import (
+	"errors"
 	"log"
 	"os"
+	"sync"
 	"time"
 	"yquiz_back/internal/models"
 
@@ -10,14 +12,17 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	DB   *gorm.DB
+	once sync.Once
+)
 
-func InitDatabase() {
+func InitDatabase() error {
 	var err error
 
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		log.Fatal("DATABASE_URL is not set")
+		return errors.New("DATABASE_URL is not set")
 	}
 
 	const maxAttempts = 5
@@ -26,14 +31,14 @@ func InitDatabase() {
 		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			log.Println("connected to database")
+			//TODO: uncomment this when the database is ready
 			/* SyncDatabase() */
-			/* TODO: uncomment this when the database is ready */
-			return
+			return nil
 		}
 		log.Printf("failed to connect database: %v", err)
 		time.Sleep(2 * time.Second)
 	}
-	log.Fatal("Failed to connect to database after multiple attempts", err)
+	return errors.New("Failed to connect to database after multiple attempts" + err.Error())
 }
 
 func SyncDatabase() {
@@ -50,4 +55,18 @@ func SyncDatabase() {
 	}
 
 	log.Println("Database synced successfully")
+}
+
+func GetDB() (*gorm.DB, error) {
+	var err error
+
+	once.Do(func() {
+		err = InitDatabase()
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return DB, nil
 }
