@@ -26,7 +26,8 @@ func InitDatabase() {
 		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			log.Println("connected to database")
-			SyncDatabase()
+			/* SyncDatabase() */
+			/* TODO: uncomment this when the database is ready */
 			return
 		}
 		log.Printf("failed to connect database: %v", err)
