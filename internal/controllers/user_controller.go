@@ -3,67 +3,64 @@ package controllers
 import (
 	"yquiz_back/internal/database"
 	"yquiz_back/internal/models"
+	"yquiz_back/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CreateUser(c *gin.Context) {
-	var userForm models.UserForm
+func Login(c *gin.Context) {
 
-	if err := c.ShouldBind(&userForm); err != nil {
+	/* {
+	    "message": "User created",
+	    "user": {
+	        "id": 2,
+	        "email": "mail@mail2.com",
+	        "first_name": "ludo",
+	        "last_name": "roux",
+	        "role": "admin",
+	        "class_id": null,
+	        "Class": null,
+	        "Quizzes": null,
+	        "UserAnswers": null,
+	        "MonitoringLogs": null
+	    }
+	} */
+
+	var loginForm models.LoginForm
+
+	if err := c.ShouldBind(&loginForm); err != nil {
 		c.JSON(400, gin.H{
-			"message": "Données de formulaire invalides",
+			"message": "Données de connexion invalides",
 			"error":   err.Error(),
-		})
-		return
-	}
-
-	user, err := userForm.ToUser()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"message": "Erreur lors de la création de l'utilisateur",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	result := database.DB.Create(user)
-	if result.Error != nil {
-		c.JSON(500, gin.H{
-			"message": "Erreur lors de la création de l'utilisateur",
-			"error":   result.Error.Error(),
-		})
-		return
-	}
-	c.JSON(200, gin.H{
-		"message": "User created",
-		"user":    user,
-	})
-
-}
-
-func GetUser(c *gin.Context) {
-
-	id := c.Param("id")
-
-	if id == "" {
-		c.JSON(400, gin.H{
-			"message": "ID invalide",
 		})
 		return
 	}
 
 	var user models.User
-	result := database.DB.First(&user, "id = ?", id)
+	result := database.DB.Where("email = ?", loginForm.Email).First(&user)
 	if result.Error != nil {
-		c.JSON(404, gin.H{
-			"message": "Utilisateur non trouvé",
+		c.JSON(401, gin.H{
+			"message": "Email ou mot de passe incorrect",
+		})
+		return
+	}
+
+	if !pkg.CheckPassword(loginForm.Password, user.Password) {
+		c.JSON(401, gin.H{
+			"message": "Email ou mot de passe incorrect",
 		})
 		return
 	}
 
 	c.JSON(200, gin.H{
-		"message": "User retrieved",
-		"user":    user,
+		"message": "Connexion réussie",
+		"data": gin.H{
+			"user_id":    user.ID,
+			"first_name": user.FirstName,
+			"last_name":  user.LastName,
+			"role":       user.Role,
+			"class_id":   user.ClassID,
+			"token":      "token",
+		},
 	})
 }

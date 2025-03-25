@@ -26,9 +26,11 @@ func initRoutes(router *gin.Engine) {
 		/*
 			Users API routes
 		*/
-		api.POST("/users", controllers.CreateUser)
-		api.GET("/users/:id", controllers.GetUser)
-		/* router.PUT("/users/:id", UpdateUser)
-		router.DELETE("/users/:id", DeleteUser) */
+		api.POST("/login", controllers.Login)
+
+		/*
+			Quizzes API routes
+		*/
+
 	}
 }
