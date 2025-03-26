@@ -56,7 +56,6 @@ func Login(c *gin.Context) {
 	token := controllers.CreateJWT(c, &user)
 
 	c.JSON(200, gin.H{
-		"message": "Connexion réussie",
 		"data": gin.H{
 			"user_id":    user.ID,
 			"first_name": user.FirstName,
