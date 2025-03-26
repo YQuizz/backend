@@ -31,6 +31,7 @@ func initRoutes(router *gin.Engine) {
 		/*
 			Quizzes API routes
 		*/
+		api.POST("/quizzes", handler.CreateQuiz)
 
 	}
 }

@@ -14,3 +14,10 @@ type Quiz struct {
 	CreatedAt   time.Time  `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time  `gorm:"autoUpdateTime"`
 }
+
+type QuizzForm struct {
+	Title       string         `json:"title" binding:"required"`
+	Description string         `json:"description" binding:"required"`
+	Duration    uint           `json:"duration" binding:"required"`
+	Questions   []QuestionForm `json:"questions" binding:"required"`
+}

@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 
 	var loginForm models.LoginForm
 
-	if err := c.ShouldBind(&loginForm); err != nil {
+	if err := c.ShouldBindJSON(&loginForm); err != nil {
 		c.JSON(400, gin.H{
 			"message": "Données de connexion invalides",
 			"error":   err.Error(),

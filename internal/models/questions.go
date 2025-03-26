@@ -13,3 +13,9 @@ type Question struct {
 	CreatedAt  time.Time    `gorm:"autoCreateTime"`
 	UpdatedAt  time.Time    `gorm:"autoUpdateTime"`
 }
+
+type QuestionForm struct {
+	Text    string       `json:"text" binding:"required"`
+	Type    string       `json:"type" binding:"required"`
+	Answers []AnswerForm `json:"answers" binding:"required"`
+}
