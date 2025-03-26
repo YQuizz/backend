@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	ID             uint            `json:"id" gorm:"column:id;primaryKey"`
 	Email          string          `json:"email" gorm:"unique;not null"`
@@ -12,6 +14,8 @@ type User struct {
 	Quizzes        []Quiz          `gorm:"foreignKey:TeacherID;references:ID"`
 	UserAnswers    []UserAnswer    `gorm:"foreignKey:UserID;references:ID"`
 	MonitoringLogs []MonitoringLog `gorm:"foreignKey:UserID;references:ID"`
+	CreatedAt      time.Time       `gorm:"autoCreateTime"`
+	UpdatedAt      time.Time       `gorm:"autoUpdateTime"`
 }
 
 type LoginForm struct {

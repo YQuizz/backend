@@ -2,8 +2,8 @@ package internal
 
 import (
 	"log"
-	"yquiz_back/internal/controllers"
 	"yquiz_back/internal/database"
+	handler "yquiz_back/internal/handlers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +26,7 @@ func initRoutes(router *gin.Engine) {
 		/*
 			Users API routes
 		*/
-		api.POST("/login", controllers.Login)
+		api.POST("/login", handler.Login)
 
 		/*
 			Quizzes API routes

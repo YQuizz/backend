@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Quiz struct {
 	ID          uint   `gorm:"primaryKey"`
 	Title       string `gorm:"not null;unique"`
@@ -9,4 +11,6 @@ type Quiz struct {
 	Duration    uint       `gorm:"not null"` //minutes
 	Questions   []Question `gorm:"foreignKey:QuizID;references:ID"`
 	Sessions    []Session  `gorm:"foreignKey:QuizID;references:ID"`
+	CreatedAt   time.Time  `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time  `gorm:"autoUpdateTime"`
 }

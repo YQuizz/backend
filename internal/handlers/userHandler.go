@@ -1,6 +1,7 @@
-package controllers
+package handler
 
 import (
+	"yquiz_back/internal/controllers"
 	"yquiz_back/internal/database"
 	"yquiz_back/internal/models"
 	"yquiz_back/internal/pkg"
@@ -52,6 +53,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	token := controllers.CreateJWT(c, &user)
+
 	c.JSON(200, gin.H{
 		"message": "Connexion réussie",
 		"data": gin.H{
@@ -60,7 +63,7 @@ func Login(c *gin.Context) {
 			"last_name":  user.LastName,
 			"role":       user.Role,
 			"class_id":   user.ClassID,
-			"token":      "token",
+			"token":      token,
 		},
 	})
 }

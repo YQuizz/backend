@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Question struct {
 	ID         uint  `gorm:"primaryKey"`
 	QuizID     uint  `gorm:"not null"`
@@ -8,4 +10,6 @@ type Question struct {
 	Type       string       `gorm:"type:question_type;default:'libre'"` //libre, choix_multiple
 	Answer     []Answer     `gorm:"foreignKey:QuestionID;references:ID"`
 	UserAnswer []UserAnswer `gorm:"foreignKey:QuestionID;references:ID"`
+	CreatedAt  time.Time    `gorm:"autoCreateTime"`
+	UpdatedAt  time.Time    `gorm:"autoUpdateTime"`
 }

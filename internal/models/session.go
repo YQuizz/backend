@@ -11,4 +11,6 @@ type Session struct {
 	Participants   []SessionParticipant `gorm:"foreignKey:SessionID;references:ID"`
 	UserAnswers    []UserAnswer         `gorm:"foreignKey:SessionID;references:ID"`
 	MonitoringLogs []MonitoringLog      `gorm:"foreignKey:SessionID;references:ID"`
+	CreatedAt      time.Time            `gorm:"autoCreateTime"`
+	UpdatedAt      time.Time            `gorm:"autoUpdateTime"`
 }

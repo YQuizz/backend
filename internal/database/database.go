@@ -32,7 +32,7 @@ func InitDatabase() error {
 		if err == nil {
 			log.Println("connected to database")
 			//TODO: uncomment this when the database is ready
-			/* SyncDatabase() */
+			SyncDatabase()
 			return nil
 		}
 		log.Printf("failed to connect database: %v", err)
