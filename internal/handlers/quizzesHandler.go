@@ -9,14 +9,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Faire une transaction pour créer le quiz et les questions uniquement si tout est valide
 func CreateQuiz(c *gin.Context) {
+
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if error := tx.Error; error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Erreur lors de la connexion",
+		})
+		return
+	}
 
 	var quizForm models.QuizzForm
 	if err := c.ShouldBindJSON(&quizForm); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Données invalides",
-			"error":   err.Error(),
 		})
 		return
 	}
@@ -24,7 +36,7 @@ func CreateQuiz(c *gin.Context) {
 	teacherID := controllers.CheckUserRole(c)
 	if teacherID == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "Unauthorized",
+			"message": "Accès refusé",
 		})
 		return
 	}
@@ -36,7 +48,8 @@ func CreateQuiz(c *gin.Context) {
 		TeacherID:   teacherID,
 	}
 
-	if err := database.DB.Create(&quiz).Error; err != nil {
+	if err := tx.Create(&quiz).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Erreur lors de la création du quiz",
 			"error":   err.Error(),
@@ -51,7 +64,8 @@ func CreateQuiz(c *gin.Context) {
 			Type:   questionForm.Type,
 		}
 
-		if err := database.DB.Create(&question).Error; err != nil {
+		if err := tx.Create(&question).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Erreur lors de la création des questions",
 				"error":   err.Error(),
@@ -66,7 +80,8 @@ func CreateQuiz(c *gin.Context) {
 				IsCorrect:  answerForm.IsCorrect,
 			}
 
-			if err := database.DB.Create(&answer).Error; err != nil {
+			if err := tx.Create(&answer).Error; err != nil {
+				tx.Rollback()
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"message": "Erreur lors de la création des réponses",
 					"error":   err.Error(),
@@ -75,6 +90,8 @@ func CreateQuiz(c *gin.Context) {
 			}
 		}
 	}
+
+	tx.Commit()
 
 	c.JSON(http.StatusCreated, gin.H{
 		"data": gin.H{

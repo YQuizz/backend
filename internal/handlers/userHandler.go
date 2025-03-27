@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/http"
 	"yquiz_back/internal/controllers"
 	"yquiz_back/internal/database"
 	"yquiz_back/internal/models"
@@ -30,7 +31,7 @@ func Login(c *gin.Context) {
 	var loginForm models.LoginForm
 
 	if err := c.ShouldBindJSON(&loginForm); err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Données de connexion invalides",
 			"error":   err.Error(),
 		})
@@ -40,14 +41,14 @@ func Login(c *gin.Context) {
 	var user models.User
 	result := database.DB.Where("email = ?", loginForm.Email).First(&user)
 	if result.Error != nil {
-		c.JSON(401, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Email ou mot de passe incorrect",
 		})
 		return
 	}
 
 	if !pkg.CheckPassword(loginForm.Password, user.Password) {
-		c.JSON(401, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Email ou mot de passe incorrect",
 		})
 		return
@@ -55,7 +56,7 @@ func Login(c *gin.Context) {
 
 	token := controllers.CreateJWT(c, &user)
 
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"data": gin.H{
 			"user_id":    user.ID,
 			"first_name": user.FirstName,
