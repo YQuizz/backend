@@ -32,7 +32,7 @@ func CreateJWT(c *gin.Context, user *models.User) string {
 	return tokenString
 }
 
-func CheckUserRole(c *gin.Context) uint {
+func GetTeacherID(c *gin.Context) uint {
 	tokenString, err := c.Cookie("Authorization")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization cookie not found"})

@@ -15,7 +15,7 @@ func CreateQuiz(c *gin.Context) {
 		return
 	}
 
-	teacherID := controllers.CheckUserRole(c)
+	teacherID := controllers.GetTeacherID(c)
 	if teacherID == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Accès refusé"})
 		return
@@ -36,6 +36,45 @@ func CreateQuiz(c *gin.Context) {
 			"title":       quiz.Title,
 			"description": quiz.Description,
 			"duration":    quiz.Duration,
+		},
+	})
+}
+
+func GetQuizzes(c *gin.Context) {
+	teacherID := controllers.GetTeacherID(c)
+	if teacherID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Accès refusé"})
+		return
+	}
+
+	search, sortBy, page, limit, err := controllers.ParseQuizQueryParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	quizzes, total, err := controllers.GetQuizzes(teacherID, search, sortBy, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Erreur serveur"})
+		return
+	}
+
+	var res []gin.H
+	for _, q := range quizzes {
+		res = append(res, gin.H{
+			"id":          q.ID,
+			"title":       q.Title,
+			"description": q.Description,
+			"duration":    q.Duration,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": res,
+		"pagination": models.Pagination{
+			CurrentPage: page,
+			TotalItems:  int(total),
+			TotalPages:  (int(total) + limit - 1) / limit,
 		},
 	})
 }
